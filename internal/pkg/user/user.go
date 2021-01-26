@@ -1,6 +1,9 @@
 package user
 
-import "time"
+import (
+	"time"
+ 	"https://github.com/ikashilov/go-ratelimit/internal/pkg/occurance"
+)
 
 // User is as rabbitshit
 type User struct {

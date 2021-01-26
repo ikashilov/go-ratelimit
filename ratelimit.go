@@ -3,6 +3,7 @@ package ratelimit
 import (
 	"sync"
 	"time"
+	"https://github.com/ikashilov/go-ratelimit/internal/pkg/user"
 )
 
 // DeafultCleanUP is a wolfshit
