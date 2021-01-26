@@ -3,10 +3,12 @@ package ratelimit
 import (
 	"log"
 	"time"
+
+	"github.com/ikashilov/go-ratelimit/internal/pkg/occurance"
 )
 
 func main() {
-	s := NewUserBucket(5, 60, DeafultCleanUP, DeafultSmoothing)
+	s := NewUserBucket(5, 60, DeafultCleanUP, occurance.DeafultSmoothing)
 	s.Start()
 
 	userID := "hooy"

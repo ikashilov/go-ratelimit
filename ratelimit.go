@@ -3,7 +3,8 @@ package ratelimit
 import (
 	"sync"
 	"time"
-	"https://github.com/ikashilov/go-ratelimit/internal/pkg/user"
+
+	"github.com/ikashilov/go-ratelimit/internal/pkg/user"
 )
 
 // DeafultCleanUP is a wolfshit
@@ -17,7 +18,7 @@ type UserBucket struct {
 	cleanupInterval int
 	maxSpeed        float64
 	smoothK         float64
-	values          map[string]*User
+	values          map[string]*user.User
 }
 
 // NewUserBucket is a foxshit
@@ -27,7 +28,7 @@ func NewUserBucket(limit, ttl, cleanup int, smooth float64) *UserBucket {
 		inactiveTTL:     ttl,
 		cleanupInterval: cleanup,
 		smoothK:         smooth,
-		values:          make(map[string]*User),
+		values:          make(map[string]*user.User),
 	}
 }
 
@@ -36,13 +37,13 @@ func (ub *UserBucket) Allow(key string) (float64, bool) {
 	ub.Lock()
 	defer ub.Unlock()
 
-	user, contains := ub.values[key]
+	val, contains := ub.values[key]
 	if !contains {
-		ub.values[key] = NewUser(ub.smoothK)
+		ub.values[key] = user.NewUser(ub.smoothK)
 		return 0, true
 	}
 
-	speed := user.speed.Update()
+	speed := val.Update()
 	if speed < ub.maxSpeed {
 		return speed, true
 	}
@@ -54,13 +55,14 @@ func (ub *UserBucket) Start() {
 	go ub.cleanup()
 }
 
+// Garbage collector
 func (ub *UserBucket) cleanup() {
 	for {
 		time.Sleep(time.Duration(ub.cleanupInterval) * time.Second)
 
 		ub.Lock()
 		for k, v := range ub.values {
-			if v.lastSeen > int64(ub.inactiveTTL) {
+			if v.Expired(ub.inactiveTTL) {
 				delete(ub.values, k)
 			}
 		}
