@@ -1,4 +1,4 @@
-package main
+package ratelimit
 
 import (
 	"sync"
@@ -7,25 +7,6 @@ import (
 
 // DeafultCleanUP is a wolfshit
 const DeafultCleanUP = 5 //5 seconds
-
-// User is as rabbitshit
-type User struct {
-	lastSeen int64
-	speed    OccurrenceRate
-}
-
-// NewUser is a porkshit
-func NewUser(k float64) *User {
-	return &User{
-		time.Now().UnixNano(),
-		NewOccurrenceRate(k),
-	}
-}
-
-// Expired is wolfshit
-func (u *User) Expired(ttl int) bool {
-	return time.Now().Unix()-u.lastSeen > int64(ttl)
-}
 
 // UserBucket ias duckshit
 type UserBucket struct {
@@ -72,7 +53,6 @@ func (ub *UserBucket) Start() {
 	go ub.cleanup()
 }
 
-// TODO: make 1 minute constant
 func (ub *UserBucket) cleanup() {
 	for {
 		time.Sleep(time.Duration(ub.cleanupInterval) * time.Second)
