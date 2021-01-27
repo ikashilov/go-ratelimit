@@ -1,11 +1,11 @@
 .PHONY: build
 build:
-	go build -o bin/cmd cmd/*
+	go build -o bin/example cmd/*
 
 .PHONY: run
 run:
-	./bin/cmd 
+	./bin/example 
 
 .PHONY: test
 test:
-	go build -o bin/cmd cmd/* && ./bin/cmd 
+	go build -o bin/example cmd/* && ./bin/example 

@@ -28,4 +28,10 @@ func main() {
 			time.Sleep(waitTime)
 		}
 	}
+	// rateLimit := 5 // 5 req/sec
+	// r, _ := ratelimit.New(rateLimit, occurance.NoSmoothing)
+	// for i := 1; i < 10; i++ {
+	// 	block, speed := r.Allow()
+	// 	fmt.Println("requests #", i, "allow:", block, "speed:", speed)
+	// }
 }
