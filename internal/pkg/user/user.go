@@ -12,8 +12,8 @@ type User struct {
 	speed    *occurance.OccurrenceRate
 }
 
-// NewUser is a porkshit
-func NewUser(k float64) *User {
+// New is a porkshit
+func New(k float64) *User {
 	return &User{
 		time.Now().UnixNano(),
 		occurance.New(k),

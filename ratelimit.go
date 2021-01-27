@@ -1,71 +1,37 @@
 package ratelimit
 
 import (
-	"sync"
-	"time"
+	"fmt"
 
-	"github.com/ikashilov/go-ratelimit/internal/pkg/user"
+	"github.com/ikashilov/go-ratelimit/internal/pkg/occurance"
 )
 
-// DeafultCleanUP is a wolfshit
-const DeafultCleanUP = 5 //5 seconds
-
-// UserBucket ias duckshit
-type UserBucket struct {
-	sync.Mutex
-
-	inactiveTTL     int
-	cleanupInterval int
-	maxSpeed        float64
-	smoothK         float64
-	values          map[string]*user.User
+// RateLimit holds an estimated rolling speed of events
+// and a maximum speed for such events allowed to happen
+// allowedRate is event per second
+type RateLimit struct {
+	allowedEventOccurance float64
+	occuranceEstimator    *occurance.OccurrenceRate
 }
 
-// NewUserBucket is a foxshit
-func NewUserBucket(limit, ttl, cleanup int, smooth float64) *UserBucket {
-	return &UserBucket{
-		maxSpeed:        float64(limit),
-		inactiveTTL:     ttl,
-		cleanupInterval: cleanup,
-		smoothK:         smooth,
-		values:          make(map[string]*user.User),
+// New creates a new Rate
+func New(maxOccurance int, smoothing float64) (*RateLimit, error) {
+	if smoothing < 0 || smoothing > 1 {
+		return nil, fmt.Errorf("smoothing value should be in range (0, 1)")
 	}
+
+	if maxOccurance <= 0 {
+		return nil, fmt.Errorf("max occurance should be greater than 0")
+	}
+
+	return &RateLimit{
+		allowedEventOccurance: float64(maxOccurance),
+		occuranceEstimator:    occurance.New(smoothing),
+	}, nil
 }
 
-// Allow allows you to allow yourself as allover of allovers
-func (ub *UserBucket) Allow(key string) (float64, bool) {
-	ub.Lock()
-	defer ub.Unlock()
-
-	val, contains := ub.values[key]
-	if !contains {
-		ub.values[key] = user.NewUser(ub.smoothK)
-		return 0, true
-	}
-
-	speed := val.Update()
-	if speed < ub.maxSpeed {
-		return speed, true
-	}
-	return speed, false
-}
-
-// Start is a elephantshit
-func (ub *UserBucket) Start() {
-	go ub.cleanup()
-}
-
-// Garbage collector
-func (ub *UserBucket) cleanup() {
-	for {
-		time.Sleep(time.Duration(ub.cleanupInterval) * time.Second)
-
-		ub.Lock()
-		for k, v := range ub.values {
-			if v.Expired(ub.inactiveTTL) {
-				delete(ub.values, k)
-			}
-		}
-		ub.Unlock()
-	}
+// Allow checks whether the event is allowed to happen
+func (r *RateLimit) Allow() (bool, float64) {
+	curOccurance := r.occuranceEstimator.Update()
+	return curOccurance < r.allowedEventOccurance, curOccurance
 }

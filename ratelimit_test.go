@@ -1,27 +1,23 @@
 package ratelimit
 
 import (
-	"log"
-	"time"
+	"testing"
 
-	"github.com/ikashilov/go-ratelimit/internal/pkg/occurance"
+	"github.com/stretchr/testify/assert"
 )
 
-func main() {
-	s := NewUserBucket(5, 60, DeafultCleanUP, occurance.DeafultSmoothing)
-	s.Start()
+func TestSimple(t *testing.T) {
+	rateLimit := 10
+	smoothing := 1. // no smoothing
 
-	userID := "hooy"
-	waitTime := 1000 * time.Millisecond
-
-	for i := 0; i < 1000; i++ {
-		time.Sleep(50 * time.Millisecond)
-		speed, allow := s.Allow(userID)
-		if allow {
-			log.Printf("Allow --> %.3f\n", speed)
+	r, _ := New(rateLimit, smoothing)
+	for i := 1; i < 20; i++ {
+		block, speed := r.Allow()
+		if i <= rateLimit {
+			assert.True(t, block)
 		} else {
-			log.Printf("Block --> %.3f. Sleeping for %v\n", speed, waitTime)
-			time.Sleep(waitTime)
+			assert.False(t, block)
 		}
+		assert.InDelta(t, i, speed, 1)
 	}
 }

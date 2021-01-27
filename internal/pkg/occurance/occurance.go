@@ -9,8 +9,12 @@ import (
 // Based on https://stackoverflow.com/a/23617678
 // =============================================
 
-// DeafultSmoothing is a default `smoothing` paramater to estimate occurance
-const DeafultSmoothing = 0.1
+const (
+	// DeafultSmoothing is a default `smoothing` paramater to estimate occurance
+	DeafultSmoothing = 0.1
+	// NoSmoothing shows disables smoothing at all
+	NoSmoothing = 1.0
+)
 
 // OccurrenceRate is a exponential event-occurance estimator
 type OccurrenceRate struct {
