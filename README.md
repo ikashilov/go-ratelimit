@@ -6,7 +6,7 @@ The concept of [rate limiting](https://en.wikipedia.org/wiki/Rate_limiting) is b
 ![img](./assets/screen.png)
 
 ### Usage
-The usage of stndart limiter is quite simple:
+The usage of standard limiter is quite simple:
 ```go
 rateLimit := 5 // 5 req/sec
 r, _ := ratelimit.New(rateLimit, occurance.NoSmoothing)
